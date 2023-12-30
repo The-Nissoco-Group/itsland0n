@@ -1,7 +1,8 @@
+import { sleep } from "bun";
 import { MongoClient } from "mongodb";
 
 class Guild {
-    public readonly UUID: string;
+    public readonly uuid: string;
     public readonly guildID: string;
     
     public moderation: Guild.Moderation;
@@ -11,8 +12,8 @@ class Guild {
     public economy: boolean;
     public music: boolean;
 
-    public constructor(UUID: string, guildID: string, moderation: Guild.Moderation, leveling: Guild.Leveling, records: Guild.Records, economy: boolean, music: boolean) {
-        this.UUID = UUID;
+    public constructor(uuid: string, guildID: string, moderation: Guild.Moderation, leveling: Guild.Leveling, records: Guild.Records, economy: boolean, music: boolean) {
+        this.uuid = uuid;
         this.guildID = guildID;
 
         this.moderation = moderation;
@@ -65,10 +66,10 @@ namespace Guild {
     }
 
     export class Records {
-        public levelingLogs: {enabled: boolean, channel: string, mention: boolean};
-        public moderationLogs: {enabled: boolean, channel: string};
-        public joinLogs: {enabled: boolean, channel: string};
-        public leaveLogs: {enabled: boolean, channel: string};
+        public levelingLogs: {enabled: boolean, channel: string | null, mention: boolean};
+        public moderationLogs: {enabled: boolean, channel: string | null};
+        public joinLogs: {enabled: boolean, channel: string | null};
+        public leaveLogs: {enabled: boolean, channel: string | null};
 
         constructor(levelingLogs: {enabled: boolean, channel: string, mention: boolean}, moderationLogs: {enabled: boolean, channel: string}, joinLogs: {enabled: boolean, channel: string}, leaveLogs: {enabled: boolean, channel: string}) {
             this.levelingLogs = levelingLogs;
@@ -134,6 +135,8 @@ async function fetchGuildConfig(client: MongoClient, guildID: string) {
             music: true
         }
         collection.insertOne(defaultConfig);
+
+        await sleep(500)
     }
 
     const data = await collection.findOne({"guildID": guildID});
@@ -145,4 +148,43 @@ async function fetchGuildConfig(client: MongoClient, guildID: string) {
     return new Guild(data!._id.toString(), data!.guildID, moderation, leveling, records, data!.economy, data!.music);
 }
 
-export {fetchGuildConfig}
+async function saveGuildConfig(client: MongoClient, guild: Guild) {
+    const collection = client.db("discord").collection("guilds")
+
+    const insertConfig = {
+        _id: guild.uuid,
+        guildID: guild.guildID,
+        type: "guildConfiguration",
+        moderation: {
+            roles: guild.moderation.roles,
+            profanityFiltering: guild.moderation.profanityFiltering,
+            customWordFilter: guild.moderation.customWordFilter,
+            customRegexFilter: guild.moderation.customRegexFilter,
+            removeLinks: guild.moderation.removeLinks,
+            removeIPs: guild.moderation.removeIPs,
+            removeMassMentions: guild.moderation.removeMassMentions,
+            antiNuke: guild.moderation.antiNuke,
+            filterSuspiciousMembers: guild.moderation.filterSuspiciousMembers,
+            filterDMSpammers: guild.moderation.filterDMSpammers
+        },
+        leveling: {
+            enabled: guild.leveling.enabled,
+            difficulty: guild.leveling.difficulty,
+            defaultLevelExperience: guild.leveling.defaultLevelExperience,
+            experiencePerMessage: guild.leveling.experiencePerMessage
+        },
+        records: {
+            levelingLogs: guild.records.levelingLogs,
+            moderationLogs: guild.records.moderationLogs,
+            joinLogs: guild.records.joinLogs,
+            leaveLogs: guild.records.leaveLogs
+        },
+        economy: guild.economy,
+        music: guild.music
+    }
+
+    collection.replaceOne({guildID: guild.guildID}, insertConfig)
+    // collection.updateOne({guildID: guild.guildID}, {}, { upsert: true })
+}
+
+export { fetchGuildConfig, saveGuildConfig, Guild }

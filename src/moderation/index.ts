@@ -2,6 +2,7 @@ import { Client, Message } from "discord.js";
 import { fetchGuildConfig } from "../configs/guild";
 import { MongoClient } from "mongodb";
 import { customWordFilter, customRegexFilter } from "./customFilter";
+import { detectDiscordInvites } from "./detectWebContent";
 
 export default async function moderation(client: Client, mongoClient: MongoClient) {
     client.on("messageCreate", async (message: Message) => {
@@ -14,8 +15,12 @@ export default async function moderation(client: Client, mongoClient: MongoClien
         }
     
         if (message.member!.permissions.has("Administrator")) return
+
+        if (!message.deletable) return
+
+        detectDiscordInvites(message, guildConfig);
     
-        customWordFilter(message, guildConfig)
-        customRegexFilter(message, guildConfig)
+        customWordFilter(message, guildConfig);
+        customRegexFilter(message, guildConfig);
     })
 }

@@ -1,7 +1,7 @@
 import { Client, Message } from "discord.js";
 import { fetchGuildConfig } from "../configs/guild";
 import { MongoClient } from "mongodb";
-import { customWordFilter } from "./customFilter";
+import { customWordFilter, customRegexFilter } from "./customFilter";
 
 export default async function moderation(client: Client, mongoClient: MongoClient) {
     client.on("messageCreate", async (message: Message) => {
@@ -16,5 +16,6 @@ export default async function moderation(client: Client, mongoClient: MongoClien
         if (message.member!.permissions.has("Administrator")) return
     
         customWordFilter(message, guildConfig)
+        customRegexFilter(message, guildConfig)
     })
 }

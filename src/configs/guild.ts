@@ -33,18 +33,20 @@ namespace Guild {
         public customRegexFilter: string[];
         public removeLinks: boolean;
         public removeIPs: boolean;
+        public removeDiscordInvites: boolean;
         public removeMassMentions: {enabled: boolean, pingsPerMessage: number};
         public antiNuke: boolean;
         public filterSuspiciousMembers: boolean;
         public filterDMSpammers: boolean;
 
-        public constructor(roles: {moderationExemptRoles: string[], antiNukeExemptRoles: string[]}, profanityFiltering: boolean, customWordFilter: string[], customRegexFilter: string[], removeLinks: boolean, removeIPs: boolean, removeMassMentions: {enabled: boolean, pingsPerMessage: number}, antiNuke: boolean, filterSuspiciousMembers: boolean, filterDMSpammers: boolean) {
+        public constructor(roles: {moderationExemptRoles: string[], antiNukeExemptRoles: string[]}, profanityFiltering: boolean, customWordFilter: string[], customRegexFilter: string[], removeLinks: boolean, removeIPs: boolean, removeDiscordInvites: boolean, removeMassMentions: {enabled: boolean, pingsPerMessage: number}, antiNuke: boolean, filterSuspiciousMembers: boolean, filterDMSpammers: boolean) {
             this.roles = roles;
             this.profanityFiltering = profanityFiltering;
             this.customWordFilter = customWordFilter;
             this.customRegexFilter = customRegexFilter;
             this.removeLinks = removeLinks;
             this.removeIPs = removeIPs;
+            this.removeDiscordInvites = removeDiscordInvites;
             this.removeMassMentions = removeMassMentions;
             this.antiNuke = antiNuke;
             this.filterSuspiciousMembers = filterSuspiciousMembers;
@@ -98,6 +100,7 @@ async function fetchGuildConfig(client: MongoClient, guildID: string) {
                 customRegexFilter: [],
                 removeLinks: false,
                 removeIPs: false,
+                removeDiscordInvites: false,
                 removeMassMentions: {
                     enabled: false,
                     pingsPerMessage: 8
@@ -141,7 +144,7 @@ async function fetchGuildConfig(client: MongoClient, guildID: string) {
 
     const data = await collection.findOne({"guildID": guildID});
 
-    const moderation = new Guild.Moderation(data!.moderation.roles, data!.moderation.profanityFiltering, data!.moderation.customWordFilter, data!.moderation.customRegexFilter, data!.moderation.removeLinks, data!.moderation.removeIPs, data!.moderation.removeMassMentions, data!.moderation.antiNuke, data!.moderation.filterSuspiciousMembers, data!.moderation.filterDMSpammers);
+    const moderation = new Guild.Moderation(data!.moderation.roles, data!.moderation.profanityFiltering, data!.moderation.customWordFilter, data!.moderation.customRegexFilter, data!.moderation.removeLinks, data!.moderation.removeIPs, data!.moderation.removeDiscordInvites, data!.moderation.removeMassMentions, data!.moderation.antiNuke, data!.moderation.filterSuspiciousMembers, data!.moderation.filterDMSpammers);
     const leveling = new Guild.Leveling(data!.leveling.enabled, data!.leveling.difficulty, data!.leveling.defaultLevelExperience, data!.leveling.experiencePerMessage);
     const records = new Guild.Records(data!.records.levelingLogs, data!.records.moderationLogs, data!.records.joinLogs, data!.records.leaveLogs);
 
@@ -162,6 +165,7 @@ async function saveGuildConfig(client: MongoClient, guild: Guild) {
             customRegexFilter: guild.moderation.customRegexFilter,
             removeLinks: guild.moderation.removeLinks,
             removeIPs: guild.moderation.removeIPs,
+            removeDiscordInvites: guild.moderation.removeDiscordInvites,
             removeMassMentions: guild.moderation.removeMassMentions,
             antiNuke: guild.moderation.antiNuke,
             filterSuspiciousMembers: guild.moderation.filterSuspiciousMembers,

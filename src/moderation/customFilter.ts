@@ -8,7 +8,7 @@ function customWordFilter(message: Message, guildConfig: Guild) {
             // Incase bot does not have permission to delete
             catch { return }
 
-            try { message.channel.send(`<@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
+            try { message.channel.send(`<a:deny:1190937442203734066> <@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
             catch { return }
         }
     }
@@ -23,7 +23,7 @@ function customRegexFilter(message: Message, guildConfig: Guild) {
             // Incase bot does not have permission to delete
             catch { return }
     
-            try { message.channel.send(`<@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
+            try { message.channel.send(`<a:deny:1190937442203734066> <@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
             catch { return }
         }   
     }

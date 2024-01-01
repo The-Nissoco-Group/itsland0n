@@ -2,7 +2,7 @@ import { Client, Message } from "discord.js";
 import { fetchGuildConfig } from "../configs/guild";
 import { MongoClient } from "mongodb";
 import { customWordFilter, customRegexFilter } from "./customFilter";
-import { detectDiscordInvites } from "./detectWebContent";
+import { detectDiscordInvites, detectIpAddress } from "./detectWebContent";
 
 export default async function moderation(client: Client, mongoClient: MongoClient) {
     client.on("messageCreate", async (message: Message) => {
@@ -19,6 +19,7 @@ export default async function moderation(client: Client, mongoClient: MongoClien
         if (!message.deletable) return
 
         detectDiscordInvites(message, guildConfig);
+        detectIpAddress(message, guildConfig);
     
         customWordFilter(message, guildConfig);
         customRegexFilter(message, guildConfig);

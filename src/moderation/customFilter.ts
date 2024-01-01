@@ -4,9 +4,7 @@ import { Guild } from "../configs/guild";
 function customWordFilter(message: Message, guildConfig: Guild) {
     for (const words of message.content.split(" ")) {
         if (guildConfig.moderation.customWordFilter.includes(words)) {
-            try { message.delete() }
-            // Incase bot does not have permission to delete
-            catch { return }
+            message.delete()
 
             try { message.channel.send(`<a:deny:1190937442203734066> <@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
             catch { return }
@@ -19,9 +17,7 @@ function customRegexFilter(message: Message, guildConfig: Guild) {
     for (const rawFilter of guildConfig.moderation.customRegexFilter) {
         const filter = new RegExp(rawFilter);
         if (filter.test(content)) {
-            try { message.delete() }
-            // Incase bot does not have permission to delete
-            catch { return }
+            message.delete()
     
             try { message.channel.send(`<a:deny:1190937442203734066> <@${message.author.id}>, the message you sent contained content not allowed on this server!`) }
             catch { return }

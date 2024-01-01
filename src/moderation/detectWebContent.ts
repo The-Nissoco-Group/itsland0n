@@ -15,4 +15,19 @@ function detectDiscordInvites(message: Message, guildConfig: Guild) {
     }
 }
 
-export { detectDiscordInvites }
+function detectIpAddress(message: Message, guildConfig: Guild) {
+    if (!guildConfig.moderation.removeIPs) return
+    const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+    for (const data of message.content.split(" ")) {
+        if (regex.test(data)) {
+            message.delete();
+
+            try { message.channel.send(`<a:deny:1190937442203734066> <@${message.author.id}>, IP Addresses are not allowed on this server!`); }
+            catch { return; }
+        }
+    }
+}
+
+
+export { detectDiscordInvites, detectIpAddress }
